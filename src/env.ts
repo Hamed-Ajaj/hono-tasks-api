@@ -1,28 +1,28 @@
+import type { ZodError } from "zod";
 
-import { config } from 'dotenv'
-import { expand } from 'dotenv-expand'
+import { config } from "dotenv";
+import { expand } from "dotenv-expand";
+import z from "zod";
 
-import z, { ZodError } from 'zod'
-expand(config())
+expand(config());
 
 const EnvSchema = z.object({
-  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   PORT: z.coerce.number().default(5000),
-  LOG_LEVEL: z.enum(['fatal', 'debug', 'info', 'warn', 'error']).default('info'),
-})
+  LOG_LEVEL: z.enum(["fatal", "debug", "info", "warn", "error"]).default("info"),
+});
 
-export type env = z.infer<typeof EnvSchema>
+export type env = z.infer<typeof EnvSchema>;
 
 let env: env;
 
 try {
-
   env = EnvSchema.parse(process.env);
 }
 catch (e) {
-  const error = e as ZodError
-  console.error('❌ Invalid environment variables:');
-  console.error(error.message)
+  const error = e as ZodError;
+  console.error("❌ Invalid environment variables:");
+  console.error(error.message);
   process.exit(1);
 }
 
