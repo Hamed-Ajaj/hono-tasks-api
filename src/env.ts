@@ -6,35 +6,38 @@ import z from "zod";
 
 expand(config());
 
-const EnvSchema = z.object({
-  NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
-  PORT: z.coerce.number().default(5000),
-  LOG_LEVEL: z.enum(["fatal", "debug", "info", "warn", "error"]).default("info"),
-  DATABASE_URL: z.url(),
-  DATABASE_AUTH_TOKEN: z.string().optional()
-}).superRefine((input, ctx) => {
-  if (input.NODE_ENV === "production" && !input.DATABASE_AUTH_TOKEN) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.invalid_type,
-      expected: "string",
-      received: "undefined",
-      path: ["DATABASE_AUTH_TOKEN"],
-      message: "Must be set when NODE_ENV is 'production'",
-    });
-  }
-});;
+const EnvSchema = z
+  .object({
+    NODE_ENV: z
+      .enum(["development", "production", "test"])
+      .default("development"),
+    PORT: z.coerce.number().default(5000),
+    LOG_LEVEL: z
+      .enum(["fatal", "debug", "info", "warn", "error", "silent"])
+      .default("info"),
+    DATABASE_URL: z.url(),
+    DATABASE_AUTH_TOKEN: z.string().optional(),
+  })
+  .superRefine((input, ctx) => {
+    if (input.NODE_ENV === "production" && !input.DATABASE_AUTH_TOKEN) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.invalid_type,
+        expected: "string",
+        received: "undefined",
+        path: ["DATABASE_AUTH_TOKEN"],
+        message: "Must be set when NODE_ENV is 'production'",
+      });
+    }
+  });
 
 export type env = z.infer<typeof EnvSchema>;
 
-let env: env;
+// eslint-disable-next-line ts/no-redeclare
+const { data: env, error } = EnvSchema.safeParse(process.env);
 
-try {
-  env = EnvSchema.parse(process.env);
-}
-catch (e) {
-  const error = e as ZodError;
-  console.error("❌ Invalid environment variables:");
-  console.error(error.message);
+if (error) {
+  console.error("❌ Invalid env:");
+  console.error(JSON.stringify(error.flatten().fieldErrors, null, 2));
   process.exit(1);
 }
 
