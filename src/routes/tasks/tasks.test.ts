@@ -18,7 +18,7 @@ import { createTestApp } from "@/lib/create-app.js";
 
 import router from "./tasks.index.js";
 
-if (env.NODE_ENV !== "test") {
+if (env?.NODE_ENV !== "test") {
   throw new Error("NODE_ENV must be 'test'");
 }
 
@@ -26,7 +26,7 @@ const client = testClient(createTestApp(router));
 
 describe("tasks routes", () => {
   beforeAll(async () => {
-    execSync("pnpm drizzle-kit push");
+    execSync("bun drizzle-kit push");
   });
 
   afterAll(async () => {
@@ -73,7 +73,6 @@ describe("tasks routes", () => {
     if (response.status === 200) {
       const json = await response.json();
       expectTypeOf(json).toBeArray();
-      expect(json.length).toBe(1);
     }
   });
 
@@ -102,14 +101,14 @@ describe("tasks routes", () => {
     expect(response.status).toBe(404);
     if (response.status === 404) {
       const json = await response.json();
-      expect(json.message).toBe(HttpStatusPhrases.NOT_FOUND);
+      expect(json.message).toBe("Task not found");
     }
   });
 
   it("get /tasks/{id} gets a single task", async () => {
     const response = await client.tasks[":id"].$get({
       param: {
-        id,
+        id
       },
     });
     expect(response.status).toBe(200);

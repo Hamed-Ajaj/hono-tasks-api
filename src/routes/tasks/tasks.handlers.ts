@@ -74,7 +74,7 @@ export const patch: RouteHandler<PatchRoute, AppBindings> = async (c) => {
   if (!task) {
     return c.json(
       {
-        message: "Task not found",
+        message: "Not found",
       },
       HttpStatusCodes.NOT_FOUND,
     );
@@ -90,7 +90,7 @@ export const remove: RouteHandler<RemoveRoute, AppBindings> = async (c) => {
   if (result.rowsAffected === 0) {
     return c.json(
       {
-        message: "Task not found",
+        message: "Not found",
       },
       HttpStatusCodes.NOT_FOUND,
     );
